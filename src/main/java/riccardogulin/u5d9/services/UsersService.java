@@ -1,5 +1,7 @@
 package riccardogulin.u5d9.services;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,12 +9,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import riccardogulin.u5d9.entities.User;
 import riccardogulin.u5d9.exceptions.BadRequestException;
 import riccardogulin.u5d9.exceptions.NotFoundException;
 import riccardogulin.u5d9.payloads.NewUserDTO;
 import riccardogulin.u5d9.repositories.UsersRepository;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -21,6 +25,9 @@ public class UsersService {
 
 	@Autowired
 	private UsersRepository usersRepository;
+
+	@Autowired
+	private Cloudinary imgUploader;
 
 	public User save(NewUserDTO payload) {
 		// 1. Verifico che l'email non sia già in uso
@@ -82,5 +89,16 @@ public class UsersService {
 	public void findByIdAndDelete(UUID userId) {
 		User found = this.findById(userId);
 		this.usersRepository.delete(found);
+	}
+
+	public String uploadAvatar(MultipartFile file) {
+		try {
+			Map result = imgUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+			String imageURL = (String) result.get("url"); // Dalla risposta di Cloudinary leggo l'url.
+			// ... Qua dovreste aggiornare l'avatar dell'utente a DB!
+			return imageURL;
+		} catch (Exception e) {
+			throw new BadRequestException("Ci sono stati problemi nel salvataggio del file!");
+		}
 	}
 }

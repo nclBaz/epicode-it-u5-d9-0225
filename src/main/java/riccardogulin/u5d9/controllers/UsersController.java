@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import riccardogulin.u5d9.entities.User;
 import riccardogulin.u5d9.exceptions.ValidationException;
 import riccardogulin.u5d9.payloads.NewUserDTO;
@@ -68,5 +69,15 @@ public class UsersController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void getByIdAndDelete(@PathVariable UUID userId) {
 		this.usersService.findByIdAndDelete(userId);
+	}
+
+	@PatchMapping("/{userId}/avatar")
+	public String uploadImage(@RequestParam("avatar") MultipartFile file) {
+		// "avatar" deve corrispondere ESATTAMENTE al campo del FormData nel quale il frontend inserirà l'immagine
+		// Se non corrisponde non troverò il file
+		System.out.println(file.getOriginalFilename());
+		System.out.println(file.getSize());
+		return this.usersService.uploadAvatar(file);
+
 	}
 }
