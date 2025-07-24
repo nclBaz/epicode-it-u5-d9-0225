@@ -7,7 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import riccardogulin.u5d9.entities.User;
-import riccardogulin.u5d9.exceptions.BadRequestException;
+import riccardogulin.u5d9.exceptions.ValidationException;
 import riccardogulin.u5d9.payloads.NewUserDTO;
 import riccardogulin.u5d9.payloads.NewUserRespDTO;
 import riccardogulin.u5d9.services.UsersService;
@@ -44,8 +44,9 @@ public class UsersController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public NewUserRespDTO save(@RequestBody @Validated NewUserDTO payload, BindingResult validationResult) {
 		if (validationResult.hasErrors()) {
-			validationResult.getAllErrors().forEach(System.out::println);
-			throw new BadRequestException("Ci sono stati errori di validazione!");
+			//validationResult.getFieldErrors().forEach(fieldError -> System.out.println(fieldError.getDefaultMessage()));
+			throw new ValidationException(validationResult.getFieldErrors()
+					.stream().map(fieldError -> fieldError.getDefaultMessage()).toList());
 		} else {
 			User newUser = this.usersService.save(payload);
 			return new NewUserRespDTO(newUser.getId());

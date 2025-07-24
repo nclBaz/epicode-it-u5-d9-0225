@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import riccardogulin.u5d9.payloads.ErrorsDTO;
+import riccardogulin.u5d9.payloads.ErrorsWithListDTO;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +20,12 @@ import java.time.LocalDateTime;
 
 // Ogni metodo avrà un'annotazione specifica che si chiama @ExceptionHandler, grazie a questa stabilisco quale eccezione venga gestita dallo specifico metodo
 public class ExceptionsHandler {
+	@ExceptionHandler(ValidationException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorsWithListDTO handleValidationErrors(ValidationException ex) {
+
+		return new ErrorsWithListDTO(ex.getMessage(), LocalDateTime.now(), ex.getErrorMessages());
+	}
 
 	@ExceptionHandler(BadRequestException.class) // Tra le parentesi indico quale eccezione dovrà gestire questo metodo
 	@ResponseStatus(HttpStatus.BAD_REQUEST) // 400
